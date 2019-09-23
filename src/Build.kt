@@ -73,7 +73,7 @@ private fun createResponseText(responseUrl: String, buildNumber: Int): String {
     return """
                 {
                     "response_url": "$responseUrl",
-                    "text": "qa-branch 빌드가 시작됩니다. 빌드번호: #$buildNumber"
+                    "text": "qa-branch 빌드가 시작됩니다. 빌드번호: #$buildNumber\n(이전 빌드는 자동으로 실행종료 됩니다) "
                 }
                 """
 }
