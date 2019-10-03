@@ -18,53 +18,54 @@ import io.ktor.routing.post
 
 fun Route.build() {
     post("/build") {
-        val params = call.receive<Parameters>()
-        println(params.toString())
+        val responseUrl = getSlackResponseUrl(call.receive<Parameters>())
 
-        requestBuildToBitrise().let { response ->
-            val responseUrl = params["response_url"] ?: ""
-            if (response.status == "ok") {
-                respondText(call, createResponseText(responseUrl, response.buildNumber))
-            } else {
-                respondText(call, createFailText(responseUrl))
-            }
+        respondToUser(call, responseUrl, requestBuildToBitrise())
+    }
+}
+
+fun getSlackResponseUrl(params: Parameters): String {
+    return params["response_url"]
+        ?.also { println(it) }
+        ?: throw Exception("response_url이 필요해요!")
+}
+
+private suspend fun requestBuildToBitrise(): RequestBuildResponse {
+    return createHttpClient().use { client ->
+        client.post<RequestBuildResponse>(Config.BITRISE_TRIGGER_BUILD_REQUEST_URL) {
+            body = TextContent(
+                contentType = ContentType.Application.Json,
+                text = Config.BITRISE_TRIGGER_BUILD_REQUEST_BODY
+            )
         }
     }
 }
 
-private suspend fun requestBuildToBitrise(): BitriseBuildResponse {
-    /*
-        {
-            "status": "ok",
-            "message": "webhook processed",
-            "slug": "19f5ee8a2a24e844",
-            "service": "bitrise",
-            "build_slug": "bccc2ffea42a848c",
-            "build_number": 467,
-            "build_url": "https://app.bitrise.io/build/bccc2ffea42a848c",
-            "triggered_workflow": "qa"
-        }
-         */
-
+private fun createHttpClient(): HttpClient {
     return HttpClient(OkHttp) {
         install(JsonFeature) {
             serializer = GsonSerializer {
                 setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             }
         }
-    }.use { client ->
-        client.post<BitriseBuildResponse>(Config.buildStartUrl) {
-            body = TextContent(
-                text = Config.buildStartRequestBody,
-                contentType = ContentType.Application.Json
-            )
-        }
     }
 }
 
-private suspend fun respondText(call: ApplicationCall, text: String) {
+private suspend fun respondToUser(
+    call: ApplicationCall,
+    responseUrl: String,
+    requestBuildResponse: RequestBuildResponse
+) {
+    if (requestBuildResponse.status == "ok") {
+        respondJson(call, createResponseText(responseUrl, requestBuildResponse.buildNumber))
+    } else {
+        respondJson(call, createFailText(responseUrl))
+    }
+}
+
+private suspend fun respondJson(call: ApplicationCall, json: String) {
     call.respondText(
-        text = text,
+        text = json,
         contentType = ContentType.Application.Json
     )
 }
@@ -87,4 +88,4 @@ private fun createFailText(responseUrl: String): String {
                 """
 }
 
-data class BitriseBuildResponse(val status: String, val buildNumber: Int)
+data class RequestBuildResponse(val status: String, val buildNumber: Int)
