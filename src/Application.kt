@@ -1,6 +1,7 @@
 package bsscco
 
 import co.bsscco.build
+import co.bsscco.canBuild
 import com.google.gson.FieldNamingPolicy
 import io.ktor.application.Application
 import io.ktor.application.install
@@ -21,5 +22,6 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         build()
+        canBuild()
     }
 }
