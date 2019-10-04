@@ -34,7 +34,7 @@
 
     - [x]  bitrise에서 git으로부터 버전네임을 읽어오기(github api, app/build.gradle의 버전네임)
     
-    - [x]  bitrise가 서버에게 빌드를 진행해도 되는지 물어보기(/builds/available?app_version=9.9.1)
+    - [x]  bitrise가 서버에게 빌드를 진행해도 되는지 물어보기(/builds/can?app_version=9.9.1)
     
     - [x]  서버는 request qa 상태의 카드 유무를 확인하기([https://docs.atlassian.com/software/jira/docs/api/REST/8.4.2/#api/2/search-search](https://docs.atlassian.com/software/jira/docs/api/REST/8.4.2/#api/2/search-search))
 
