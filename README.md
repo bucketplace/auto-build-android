@@ -7,6 +7,7 @@
 - 서버 프레임워크 : Kotlin Ktor
 - 클라이언트 : Slack, Bitrise script step
 - CI 서비스 : Bitrise
+- API 서비스 : Github REST API, Jira REST API, Slack REST API
 
 
 ### 요구사항
