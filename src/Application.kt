@@ -1,13 +1,12 @@
-package bsscco
-
-import co.bsscco.build
-import co.bsscco.canBuild
+import controllers.builds.buildRequest
+import controllers.builds.canBuild
 import com.google.gson.FieldNamingPolicy
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
 import io.ktor.routing.routing
+import controllers.build_numbers.newBuildNumber
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -21,7 +20,8 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        build()
+        buildRequest()
         canBuild()
+        newBuildNumber()
     }
 }
