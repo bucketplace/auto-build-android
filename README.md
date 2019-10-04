@@ -33,4 +33,4 @@
 **2번에 대한 구현**
 
 - [x]  슬랙에서 서버로 build를 요청하기(/builds/request)
-    - [x]  서버에서 bitrige trigger api를 호출하기
+    - [x]  서버에서 bitrise trigger api를 호출하기
