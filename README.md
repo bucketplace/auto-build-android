@@ -1,6 +1,14 @@
 # auto-build-android
 안드로이드 빌드 자동화 도구
 
+### 환경
+---
+- 실행 환경 : GCP
+- 서버 프레임워크 : Kotlin Ktor
+- 클라이언트 : Slack, Bitrise script step
+- CI 서비스 : Bitrise
+
+
 ### 요구사항
 ---
 
