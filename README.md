@@ -44,11 +44,15 @@
 
     - [x]  서버에서 json db에 앱버전별로 빌드번호를 관리하고 새 빌드번호를 bitrise에 넘겨주기(json db library)
     
-- [ ]  빌드 완료 시 bitrise에서 서버로 ready for qa 카드들의 상태를 다음 단계로 바꿔달라고 요청하기(/jira_issues/ready_for_qa/to/qa_in_progress?app_version=9.9.1)
+- [x]  빌드 완료 시 bitrise에서 서버로 ready for qa 카드들의 상태를 다음 단계로 바꿔달라고 요청하기(/jira_issues/ready_for_qa/to/qa_in_progress?app_version=9.9.1)
 
-    - [ ]  서버에서 ready for qa 카드들의 상태를 qa in progress로 바꾸기
+    - [x]  서버에서 ready for qa 카드들의 상태를 qa in progress로 바꾸기
     
     - [ ]  상태가 바뀐 카드들의 목록을 텍스트로 응답하기
+    
+    - [x]  bitrise가 카드목록 텍스트를 slack로 전송하기
+    
+    - [x]  bitrise가 apk를 디플로이게이트로 배포하기
 
 **2번에 대한 구현**
 
