@@ -9,11 +9,11 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import json_db.collections.LastBuildInfo
 
-fun Route.newBuildNumber() {
-    get("/build_numbers/new") { NewBuildNumberController(call).process() }
+fun Route.getNewBuildNumber() {
+    get("/build_numbers/new") { GetNewBuildNumberController(call).process() }
 }
 
-class NewBuildNumberController(private val call: ApplicationCall) {
+class GetNewBuildNumberController(private val call: ApplicationCall) {
 
     companion object {
         private const val DB_FILES_LOCATION = "./db"

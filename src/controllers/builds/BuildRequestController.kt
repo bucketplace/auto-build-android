@@ -38,10 +38,10 @@ class BuildRequestController(private val call: ApplicationCall) {
 
     private suspend fun requestBuildToBitrise(): RequestBuildResponse {
         return HttpClientCreator.create().use { client ->
-            client.post<RequestBuildResponse>(Config.BITRISE_TRIGGER_BUILD_REQUEST_URL) {
+            client.post<RequestBuildResponse>(Config.BITRISE_BUILD_START_URL) {
                 body = TextContent(
                     contentType = ContentType.Application.Json,
-                    text = Config.BITRISE_TRIGGER_BUILD_REQUEST_BODY
+                    text = Config.BITRISE_BUILD_START_POST_BODY
                 )
             }
         }

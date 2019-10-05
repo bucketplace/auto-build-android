@@ -48,7 +48,7 @@ class CanBuildController(private val call: ApplicationCall) {
             client.post<HttpResponse>(Config.JIRA_LOGIN_URL) {
                 body = TextContent(
                     contentType = ContentType.Application.Json,
-                    text = Config.JIRA_LOGIN_BODY
+                    text = Config.JIRA_LOGIN_POST_BODY
                 )
             }
         }

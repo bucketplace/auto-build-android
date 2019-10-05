@@ -6,7 +6,8 @@ import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
 import io.ktor.routing.routing
-import controllers.build_numbers.newBuildNumber
+import controllers.build_numbers.getNewBuildNumber
+import controllers.jira_issues.changeIssuesStatusToQaInProgress
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -22,6 +23,7 @@ fun Application.module(testing: Boolean = false) {
     routing {
         buildRequest()
         canBuild()
-        newBuildNumber()
+        getNewBuildNumber()
+        changeIssuesStatusToQaInProgress()
     }
 }
