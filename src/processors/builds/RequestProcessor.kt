@@ -1,4 +1,4 @@
-package controllers.builds
+package processors.builds
 
 import Config
 import io.ktor.application.ApplicationCall
@@ -14,11 +14,11 @@ import io.ktor.routing.post
 import kotlinx.coroutines.runBlocking
 import utils.HttpClientCreator
 
-fun Route.buildRequest() {
-    post("/builds/request") { BuildRequestController(call).process() }
+fun Route.buildsRequest() {
+    post("/builds/request") { RequestProcessor(call).process() }
 }
 
-class BuildRequestController(private val call: ApplicationCall) {
+class RequestProcessor(private val call: ApplicationCall) {
 
     private val responseUrl: String
 

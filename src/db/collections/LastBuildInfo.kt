@@ -1,4 +1,4 @@
-package json_db.collections
+package db.collections
 
 import io.jsondb.annotation.Document
 import io.jsondb.annotation.Id

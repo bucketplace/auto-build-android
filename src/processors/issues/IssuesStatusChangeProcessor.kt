@@ -1,6 +1,7 @@
-package controllers.builds
+package processors.issues
 
 import Config
+import processors.issues.IssuesStatusChangeProcessor.ReadyForQaIssuesResponse.Issue
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.client.request.get
@@ -16,11 +17,11 @@ import io.ktor.routing.get
 import io.ktor.util.toMap
 import utils.HttpClientCreator
 
-fun Route.canBuild() {
-    get("/builds/can") { CanBuildController(call).process() }
+fun Route.issuesStatusChange() {
+    get("/issues/status/change") { IssuesStatusChangeProcessor(call).process() }
 }
 
-class CanBuildController(private val call: ApplicationCall) {
+class IssuesStatusChangeProcessor(private val call: ApplicationCall) {
 
     private val appVersion: String
     private val httpClient = HttpClientCreator.create()
@@ -34,13 +35,19 @@ class CanBuildController(private val call: ApplicationCall) {
     }
 
     suspend fun process() {
-        getReadyForQaIssueCount()
-            .let { issueCount -> createResponseText(issueCount) }
+        getReadyForQaIssues()
+            .let { issues -> createResponseText(issues) }
             .let { responseText -> respond(responseText) }
     }
 
-    private suspend fun getReadyForQaIssueCount(): Int {
-        return getReadyForQaIssues(getJiraAuthenticationCookie())
+    private suspend fun getReadyForQaIssues(): List<Issue> {
+        return getJiraAuthenticationCookie().let { jiraAuthCookie ->
+            httpClient.use { client ->
+                client.get<ReadyForQaIssuesResponse>(Config.getJiraReadyForQaIssuesUrl(appVersion)) {
+                    header("cookie", jiraAuthCookie)
+                }
+            }.issues
+        }
     }
 
     private suspend fun getJiraAuthenticationCookie(): String {
@@ -59,15 +66,11 @@ class CanBuildController(private val call: ApplicationCall) {
         return headers.toMap()["set-cookie"]?.joinToString("; ") ?: throw Exception("지라 로그인 실패!")
     }
 
-    private suspend fun getReadyForQaIssues(jiraAuthCookie: String): Int {
-        return httpClient.use { client ->
-            client.get<ReadyForQaIssuesResponse>(Config.getJiraReadyForQaIssuesUrl(appVersion)) {
-                header("cookie", jiraAuthCookie)
-            }
-        }.total
+    private fun createResponseText(issues: List<Issue>): String {
+        return issues.fold("", { text, issue ->
+            text + "${issue.fields.summary} (${Config.getJiraIssueUrl(issue.key)})\n"
+        })
     }
-
-    private fun createResponseText(issueCount: Int): String = if (issueCount >= 1) "true" else "false"
 
     private suspend fun respond(text: String) {
         call.respondText(
@@ -76,5 +79,9 @@ class CanBuildController(private val call: ApplicationCall) {
         )
     }
 
-    private data class ReadyForQaIssuesResponse(val total: Int)
+    private data class ReadyForQaIssuesResponse(val issues: List<Issue>) {
+        data class Issue(val key: String, val fields: Fields) {
+            data class Fields(val summary: String)
+        }
+    }
 }

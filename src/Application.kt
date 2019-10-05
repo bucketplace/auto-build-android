@@ -1,13 +1,13 @@
-import controllers.builds.buildRequest
-import controllers.builds.canBuild
+import processors.builds.buildsRequest
+import processors.builds.buildsCan
 import com.google.gson.FieldNamingPolicy
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
 import io.ktor.routing.routing
-import controllers.build_numbers.getNewBuildNumber
-import controllers.jira_issues.changeIssuesStatusToQaInProgress
+import processors.build_numbers.buildNumbersNew
+import processors.issues.issuesStatusChange
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -21,9 +21,9 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        buildRequest()
-        canBuild()
-        getNewBuildNumber()
-        changeIssuesStatusToQaInProgress()
+        buildsRequest()
+        buildsCan()
+        buildNumbersNew()
+        issuesStatusChange()
     }
 }

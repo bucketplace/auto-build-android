@@ -1,4 +1,4 @@
-package controllers.build_numbers
+package processors.build_numbers
 
 import io.jsondb.JsonDBTemplate
 import io.ktor.application.ApplicationCall
@@ -7,17 +7,17 @@ import io.ktor.http.ContentType
 import io.ktor.response.respondText
 import io.ktor.routing.Route
 import io.ktor.routing.get
-import json_db.collections.LastBuildInfo
+import db.collections.LastBuildInfo
 
-fun Route.getNewBuildNumber() {
-    get("/build_numbers/new") { GetNewBuildNumberController(call).process() }
+fun Route.buildNumbersNew() {
+    get("/build_numbers/new") { NewProcessor(call).process() }
 }
 
-class GetNewBuildNumberController(private val call: ApplicationCall) {
+private class NewProcessor(private val call: ApplicationCall) {
 
     companion object {
         private const val DB_FILES_LOCATION = "./db"
-        private const val BASE_SCAN_PACKAGE = "json_db.collections"
+        private const val BASE_SCAN_PACKAGE = "db.collections"
     }
 
     private val appVersion: String
