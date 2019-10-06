@@ -8,7 +8,7 @@
 - 서버 프레임워크 : Ktor
 - 클라이언트 : Slack Command, Bitrise Script Step
 - CI 서비스 : Bitrise
-- API 서비스 : Github API, Jira API, Slack API
+- API 서비스 : Github API, Jira API, Slack API, Deploygate API
 
 
 ### 요구사항
