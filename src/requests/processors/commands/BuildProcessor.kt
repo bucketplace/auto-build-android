@@ -3,6 +3,7 @@ package requests.processors.commands
 import Config
 import io.ktor.application.ApplicationCall
 import io.ktor.client.request.post
+import io.ktor.client.response.HttpResponse
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -13,14 +14,12 @@ import io.ktor.response.respondText
 import kotlinx.coroutines.runBlocking
 import requests.RequestProcessor
 import utils.HttpClientManager
+import utils.SlackRequestManager
 
 class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
-    private val responseUrl: String
-
-    init {
-        responseUrl = runBlocking { getSlackResponseUrl().also { println(it) } }
-    }
+    private val responseUrl = runBlocking { getSlackResponseUrl() }
+    private val httpClient = HttpClientManager.createClient()
 
     private suspend fun getSlackResponseUrl(): String {
         return call.receive<Parameters>()["response_url"] ?: throw Exception("response_url이 필요해요!")
@@ -28,9 +27,8 @@ class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
     override suspend fun process() {
         respondAccepted()
-        requestBuildToBitrise()
-            .let { response -> createResponseJson(response) }
-            .let { json -> respondToSlack(json) }
+        val response = requestBuildToBitrise()
+        sendResponseMessage(createResponseMessageJson(response))
     }
 
     private suspend fun respondAccepted() {
@@ -38,7 +36,7 @@ class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
     }
 
     private suspend fun requestBuildToBitrise(): RequestBuildResponse {
-        return HttpClientManager.createClient().use { client ->
+        return httpClient.use { client ->
             client.post<RequestBuildResponse>(Config.BITRISE_BUILD_START_URL) {
                 body = TextContent(
                     contentType = ContentType.Application.Json,
@@ -48,37 +46,32 @@ class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
         }
     }
 
-    private fun createResponseJson(requestBuildResponse: RequestBuildResponse): String {
-        return if (requestBuildResponse.status == "ok") {
-            createSuccessJson()
+    private fun createResponseMessageJson(response: RequestBuildResponse): String {
+        return if (response.status == "ok") {
+            createBuildRequestSuccessJson()
         } else {
-            createFailJson()
+            createBuildRequestFailJson()
         }
     }
 
-    private fun createSuccessJson(): String {
+    private fun createBuildRequestSuccessJson(): String {
         return """
                 {
-                    "response_url": "$responseUrl",
                     "text": "qa-branch 빌드가 시작됩니다. (이전 빌드는 자동으로 실행종료 됩니다) "
                 }
                 """
     }
 
-    private fun createFailJson(): String {
+    private fun createBuildRequestFailJson(): String {
         return """
                 {
-                    "response_url": "$responseUrl",
                     "text": "bitrise에서 빌드 시작이 실패했습니다."
                 }
                 """
     }
 
-    private suspend fun respondToSlack(json: String) {
-        call.respondText(
-            text = json,
-            contentType = ContentType.Application.Json
-        )
+    private suspend fun sendResponseMessage(messageJson: String) {
+        SlackRequestManager.respondCommand<HttpResponse>(responseUrl, messageJson)
     }
 
     private data class RequestBuildResponse(val status: String, val buildNumber: Int)

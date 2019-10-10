@@ -14,12 +14,8 @@ class GetNewBuildNumberProcessor(call: ApplicationCall) : RequestProcessor(call)
         private const val BASE_SCAN_PACKAGE = "db.collections"
     }
 
-    private val appVersion: String
+    private val appVersion = getAppVersion()
     private val jsonDb: JsonDBTemplate = getJsonDb()
-
-    init {
-        appVersion = getAppVersion().also { println(it) }
-    }
 
     private fun getAppVersion(): String {
         return call.request.queryParameters["app_version"] ?: throw Exception("app_version이 필요해요!")
