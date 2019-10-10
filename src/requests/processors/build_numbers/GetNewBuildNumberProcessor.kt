@@ -1,19 +1,13 @@
-package processors.build_numbers
+package requests.processors.build_numbers
 
+import db.collections.LastBuildInfo
 import io.jsondb.JsonDBTemplate
 import io.ktor.application.ApplicationCall
-import io.ktor.application.call
 import io.ktor.http.ContentType
 import io.ktor.response.respondText
-import io.ktor.routing.Route
-import io.ktor.routing.get
-import db.collections.LastBuildInfo
+import requests.RequestProcessor
 
-fun Route.buildNumbersNew() {
-    get("/build_numbers/new") { NewProcessor(call).process() }
-}
-
-private class NewProcessor(private val call: ApplicationCall) {
+class GetNewBuildNumberProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
     companion object {
         private const val DB_FILES_LOCATION = "./db"
@@ -43,7 +37,7 @@ private class NewProcessor(private val call: ApplicationCall) {
             }
     }
 
-    suspend fun process() {
+    override suspend fun process() {
         getNewLastBuildNumber()
             .also { buildNumber -> saveBuildNumber(buildNumber) }
             .let { buildNumber -> createResponseText(buildNumber) }

@@ -1,4 +1,4 @@
-package processors.builds
+package requests.processors.builds
 
 import Config
 import io.ktor.application.ApplicationCall
@@ -10,17 +10,15 @@ import io.ktor.response.respondText
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import kotlinx.coroutines.runBlocking
-import utils.HttpClientCreator
+import requests.RequestProcessor
+import utils.HttpClientManager
 import utils.JiraAuthenticationCookieGetter
 
-fun Route.buildsCan() {
-    get("/builds/can") { CanProcessor(call).process() }
-}
 
-class CanProcessor(private val call: ApplicationCall) {
+class AskCanBuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
     private val appVersion: String
-    private val httpClient = HttpClientCreator.create()
+    private val httpClient = HttpClientManager.createClient()
     private val jiraAuthCookie: String
 
     init {
@@ -32,7 +30,7 @@ class CanProcessor(private val call: ApplicationCall) {
         return call.request.queryParameters["app_version"] ?: throw Exception("app_version이 필요해요!")
     }
 
-    suspend fun process() {
+    override suspend fun process() {
         getReadyForQaIssueCount()
             .let { issueCount -> createResponseText(issueCount) }
             .let { responseText -> respond(responseText) }

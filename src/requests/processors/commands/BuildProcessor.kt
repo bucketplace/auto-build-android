@@ -1,24 +1,20 @@
-package processors.builds
+package requests.processors.commands
 
 import Config
 import io.ktor.application.ApplicationCall
-import io.ktor.application.call
 import io.ktor.client.request.post
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.Parameters
 import io.ktor.request.receive
+import io.ktor.response.respond
 import io.ktor.response.respondText
-import io.ktor.routing.Route
-import io.ktor.routing.post
 import kotlinx.coroutines.runBlocking
-import utils.HttpClientCreator
+import requests.RequestProcessor
+import utils.HttpClientManager
 
-fun Route.buildsRequest() {
-    post("/builds/request") { RequestProcessor(call).process() }
-}
-
-class RequestProcessor(private val call: ApplicationCall) {
+class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
     private val responseUrl: String
 
@@ -30,14 +26,19 @@ class RequestProcessor(private val call: ApplicationCall) {
         return call.receive<Parameters>()["response_url"] ?: throw Exception("response_url이 필요해요!")
     }
 
-    suspend fun process() {
+    override suspend fun process() {
+        respondAccepted()
         requestBuildToBitrise()
             .let { response -> createResponseJson(response) }
             .let { json -> respondToSlack(json) }
     }
 
+    private suspend fun respondAccepted() {
+        call.respond(status = HttpStatusCode.Accepted, message = "")
+    }
+
     private suspend fun requestBuildToBitrise(): RequestBuildResponse {
-        return HttpClientCreator.create().use { client ->
+        return HttpClientManager.createClient().use { client ->
             client.post<RequestBuildResponse>(Config.BITRISE_BUILD_START_URL) {
                 body = TextContent(
                     contentType = ContentType.Application.Json,

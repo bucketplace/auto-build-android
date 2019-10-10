@@ -1,8 +1,7 @@
-package processors.issues
+package requests.processors.issues
 
 import Config
 import io.ktor.application.ApplicationCall
-import io.ktor.application.call
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -10,21 +9,16 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
 import io.ktor.response.respondText
-import io.ktor.routing.Route
-import io.ktor.routing.get
 import kotlinx.coroutines.runBlocking
-import processors.issues.IssuesStatusChangeProcessor.ReadyForQaIssuesResponse.Issue
-import utils.HttpClientCreator
+import requests.RequestProcessor
+import requests.processors.issues.ChangeIssuesStatusProcessor.ReadyForQaIssuesResponse.Issue
+import utils.HttpClientManager
 import utils.JiraAuthenticationCookieGetter
 
-fun Route.issuesStatusChange() {
-    get("/issues/status/change") { IssuesStatusChangeProcessor(call).process() }
-}
-
-class IssuesStatusChangeProcessor(private val call: ApplicationCall) {
+class ChangeIssuesStatusProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
     private val appVersion: String
-    private val httpClient = HttpClientCreator.create()
+    private val httpClient = HttpClientManager.createClient()
     private val jiraAuthCookie: String
 
     init {
@@ -36,7 +30,7 @@ class IssuesStatusChangeProcessor(private val call: ApplicationCall) {
         return call.request.queryParameters["app_version"] ?: throw Exception("app_version이 필요해요!")
     }
 
-    suspend fun process() {
+    override suspend fun process() {
         getReadyForQaIssues()
             .also { issues -> changeIssuesStatus(issues) }
             .let { issues -> createResponseText(issues) }

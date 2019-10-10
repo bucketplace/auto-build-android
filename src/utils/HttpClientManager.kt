@@ -6,9 +6,9 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.features.json.GsonSerializer
 import io.ktor.client.features.json.JsonFeature
 
-object HttpClientCreator {
+object HttpClientManager {
 
-    fun create(): HttpClient {
+    fun createClient(): HttpClient {
         return HttpClient(OkHttp) {
             install(JsonFeature) {
                 serializer = GsonSerializer {
