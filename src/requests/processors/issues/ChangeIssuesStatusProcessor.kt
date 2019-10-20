@@ -10,7 +10,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
 import io.ktor.response.respondText
 import kotlinx.coroutines.runBlocking
-import requests.RequestProcessor
+import requests.processors.RequestProcessor
 import requests.processors.issues.ChangeIssuesStatusProcessor.ReadyForQaIssuesResponse.Issue
 import utils.HttpClientManager
 import utils.JiraAuthenticationCookieGetter

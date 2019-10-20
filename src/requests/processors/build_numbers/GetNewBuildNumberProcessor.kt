@@ -5,7 +5,7 @@ import io.jsondb.JsonDBTemplate
 import io.ktor.application.ApplicationCall
 import io.ktor.http.ContentType
 import io.ktor.response.respondText
-import requests.RequestProcessor
+import requests.processors.RequestProcessor
 
 class GetNewBuildNumberProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
