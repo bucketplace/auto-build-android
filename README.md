@@ -8,7 +8,7 @@
 - 서버 프레임워크 : Ktor
 - 클라이언트 : Slack Command, Bitrise Script Step
 - CI 서비스 : Bitrise
-- API 서비스 : Github API, Jira API, Slack API
+- API 서비스 : Github API, Jira API, Slack API, Deploygate API
 
 
 ### 요구사항
@@ -23,6 +23,8 @@
     1-3. 빌드 결과물은 디플로이게이트에 배포된다.
     
     1-4. READY FOR QA 상태의 지라 이슈들의 상태가 QA IN PROGRESS로 바뀐다.
+
+    1-5. 상태가 바뀐 지라 이슈들의 목록이 슬랙으로 전송된다.
     
 
 2. 슬랙에서 /build 명령어를 입력하면 qa브랜치 빌드가 시작된다.
