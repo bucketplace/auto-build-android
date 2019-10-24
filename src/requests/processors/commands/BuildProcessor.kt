@@ -13,6 +13,7 @@ import io.ktor.response.respond
 import kotlinx.coroutines.runBlocking
 import requests.processors.RequestProcessor
 import utils.HttpClientManager
+import utils.JiraRequestManager
 import utils.SlackRequestManager
 
 class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
@@ -36,7 +37,7 @@ class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
     private suspend fun requestBuildToBitrise(): RequestBuildResponse {
         return httpClient.use { client ->
-            client.post<RequestBuildResponse>(Config.BITRISE_BUILD_START_URL) {
+            client.post(Config.BITRISE_BUILD_START_URL) {
                 body = TextContent(
                     contentType = ContentType.Application.Json,
                     text = Config.BITRISE_BUILD_START_POST_BODY

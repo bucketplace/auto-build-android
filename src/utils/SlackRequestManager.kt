@@ -8,8 +8,10 @@ import io.ktor.http.content.TextContent
 
 object SlackRequestManager {
 
+    val httpClient by lazy { HttpClientManager.createClient() }
+
     suspend inline fun <reified T> respondCommand(responseUrl: String, json: String): T {
-        return HttpClientManager.createClient().use { client ->
+        return httpClient.use { client ->
             client.post<T>(responseUrl) {
                 header("Authorization", "Bearer ${Config.APP_ACCESS_TOKEN}")
                 body = TextContent(
