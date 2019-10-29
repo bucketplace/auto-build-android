@@ -10,18 +10,18 @@ import io.ktor.client.features.logging.Logger
 import io.ktor.client.features.logging.Logging
 import io.ktor.client.features.logging.SIMPLE
 
-object HttpClientManager {
+object HttpClientCreator {
 
-    fun createClient(): HttpClient {
+    fun create(): HttpClient {
         return HttpClient(OkHttp) {
             install(JsonFeature) {
                 serializer = GsonSerializer {
                     setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 }
-                install(Logging) {
-                    logger = Logger.SIMPLE
-                    level = LogLevel.BODY
-                }
+            }
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.BODY
             }
         }
     }

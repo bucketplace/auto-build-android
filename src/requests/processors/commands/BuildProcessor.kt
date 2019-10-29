@@ -3,7 +3,6 @@ package requests.processors.commands
 import Config
 import io.ktor.application.ApplicationCall
 import io.ktor.client.request.post
-import io.ktor.client.response.HttpResponse
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -12,67 +11,63 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import kotlinx.coroutines.runBlocking
 import requests.processors.RequestProcessor
-import utils.HttpClientManager
-import utils.JiraRequestManager
-import utils.SlackRequestManager
+import utils.HttpClientCreator
+import utils.SlackRequester
 
 class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
-    private val responseUrl = runBlocking { getSlackResponseUrl() }
-    private val httpClient = HttpClientManager.createClient()
+    private data class RequestBuildResponse(val status: String, val buildNumber: Int)
 
-    private suspend fun getSlackResponseUrl(): String {
-        return call.receive<Parameters>()["response_url"] ?: throw Exception("response_url이 필요해요!")
+    private val parameters by lazy { getParams() }
+    private val branch = getBranch()
+    private val responseUrl = getSlackResponseUrl()
+    private val httpClient = HttpClientCreator.create()
+    private val jsonCreator = JsonCreator()
+
+    private fun getParams(): Parameters = runBlocking { call.receive<Parameters>() }
+
+    private fun getBranch(): String {
+        return parameters["text"] ?: Config.DEFAULT_BRANCH
+    }
+
+    private fun getSlackResponseUrl(): String {
+        @Suppress("SpellCheckingInspection")
+        return parameters["response_url"] ?: throw Exception("response_url이 필요해요!")
     }
 
     override suspend fun process() {
         respondAccepted()
-        val response = requestBuildToBitrise()
-        sendResponseMessage(createResponseMessageJson(response))
+        @Suppress("ComplexRedundantLet")
+        requestBuildToBitrise()
+            .let { response -> createSuccessOrFailJson(response) }
+            .let { json -> respondToSlack(json) }
     }
 
     private suspend fun respondAccepted() {
         call.respond(status = HttpStatusCode.Accepted, message = "")
     }
 
+    @Suppress("SpellCheckingInspection")
     private suspend fun requestBuildToBitrise(): RequestBuildResponse {
         return httpClient.use { client ->
             client.post(Config.BITRISE_BUILD_START_URL) {
                 body = TextContent(
                     contentType = ContentType.Application.Json,
-                    text = Config.BITRISE_BUILD_START_POST_BODY
+                    text = Config.getBitriseBuildTriggerUrl(branch)
                 )
             }
         }
     }
 
-    private fun createResponseMessageJson(response: RequestBuildResponse): String {
+    private fun createSuccessOrFailJson(response: RequestBuildResponse): String {
         return if (response.status == "ok") {
-            createBuildRequestSuccessJson()
+            jsonCreator.createSuccessJson(branch)
         } else {
-            createBuildRequestFailJson()
+            jsonCreator.createFailJson()
         }
     }
 
-    private fun createBuildRequestSuccessJson(): String {
-        return """
-                {
-                    "text": "qa-branch 빌드가 시작됩니다. (이전 빌드는 자동으로 실행종료 됩니다) "
-                }
-                """
+    private suspend fun respondToSlack(json: String) {
+        SlackRequester.post(httpClient, responseUrl, json)
     }
-
-    private fun createBuildRequestFailJson(): String {
-        return """
-                {
-                    "text": "bitrise에서 빌드 시작이 실패했습니다."
-                }
-                """
-    }
-
-    private suspend fun sendResponseMessage(messageJson: String) {
-        SlackRequestManager.respondCommand<HttpResponse>(responseUrl, messageJson)
-    }
-
-    private data class RequestBuildResponse(val status: String, val buildNumber: Int)
 }
