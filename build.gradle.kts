@@ -45,6 +45,7 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:$ktor_version")
     implementation("io.ktor:ktor-client-logging-jvm:$ktor_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+
     implementation("io.jsondb:jsondb-core:1.0.85")
 }
 
