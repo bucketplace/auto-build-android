@@ -6,13 +6,13 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.response.respondText
 import requests.processors.RequestProcessor
-import requests.processors.issues.ChangeIssuesStatusProcessor.ReadyForQaIssuesResponse.Issue
+import requests.processors.issues.IssuesStatusChangingProcessor.ReadyForQaIssuesResponseBody.Issue
 import utils.HttpClientCreator
 import utils.JiraRequester
 
-class ChangeIssuesStatusProcessor(call: ApplicationCall) : RequestProcessor(call) {
+class IssuesStatusChangingProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
-    private data class ReadyForQaIssuesResponse(val issues: List<Issue>) {
+    private data class ReadyForQaIssuesResponseBody(val issues: List<Issue>) {
         data class Issue(val key: String, val fields: Fields) {
             data class Fields(val summary: String)
         }
@@ -22,8 +22,7 @@ class ChangeIssuesStatusProcessor(call: ApplicationCall) : RequestProcessor(call
     private val httpClient = HttpClientCreator.create()
 
     private fun getAppVersion(): String {
-        @Suppress("SpellCheckingInspection")
-        return call.request.queryParameters["app_version"] ?: throw Exception("app_version이 필요해요!")
+        return call.request.queryParameters["app_version"] ?: throw Exception("app_version not exists!")
     }
 
     override suspend fun process() {
@@ -34,7 +33,7 @@ class ChangeIssuesStatusProcessor(call: ApplicationCall) : RequestProcessor(call
     }
 
     private suspend fun getReadyForQaIssues(): List<Issue> {
-        return JiraRequester.get<ReadyForQaIssuesResponse>(
+        return JiraRequester.get<ReadyForQaIssuesResponseBody>(
             httpClient,
             Config.getJiraReadyForQaIssuesUrl(appVersion)
         ).issues

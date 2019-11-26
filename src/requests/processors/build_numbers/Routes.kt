@@ -5,5 +5,5 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 
 fun Route.buildNumbers() {
-    get("/build_numbers/new") { GetNewBuildNumberProcessor(call).process() }
+    get("/build_numbers/new") { NewBuildNumberProcessor(call).process() }
 }

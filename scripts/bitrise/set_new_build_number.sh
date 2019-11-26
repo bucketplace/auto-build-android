@@ -1,4 +1,4 @@
-newBuildNumber=$(curl $AUTO_BUILD_ANDROID_SERVER_URL/build_numbers/new?app_version=$APP_VERSION_NAME)
+newBuildNumber=$(curl $AUTO_BUILD_ANDROID_SERVER_URL/build_numbers/new?app_version=And $APP_VERSION_NAME)
 
 echo $newBuildNumber
 

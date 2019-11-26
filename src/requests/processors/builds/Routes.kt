@@ -5,5 +5,5 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 
 fun Route.builds() {
-    get("/builds/can") { CanBuildProcessor(call).process() }
+    get("/builds/can") { BuildAvailableProcessor(call).process() }
 }

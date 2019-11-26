@@ -5,5 +5,5 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 
 fun Route.commands() {
-    post("/commands/build") { BuildProcessor(call).process() }
+    post("/commands/build") { BuildRequestProcessor(call).process() }
 }

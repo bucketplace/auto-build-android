@@ -1,6 +1,6 @@
 package requests.processors.commands
 
-class JsonCreator {
+class SlackRequestBodyCreator {
 
     fun createSuccessJson(branch: String): String {
         return """

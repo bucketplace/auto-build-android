@@ -8,15 +8,15 @@ import requests.processors.RequestProcessor
 import utils.HttpClientCreator
 import utils.JiraRequester
 
-class CanBuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
+class BuildAvailableProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
-    private data class ReadyForQaIssuesResponse(val total: Int)
+    private data class ReadyForQaIssuesResponseBody(val total: Int)
 
     private val appVersion = getAppVersion()
     private val httpClient = HttpClientCreator.create()
 
     private fun getAppVersion(): String {
-        return call.request.queryParameters["app_version"] ?: throw Exception("app_version이 필요해요!")
+        return call.request.queryParameters["app_version"] ?: throw Exception("app_version not exists!")
     }
 
     override suspend fun process() {
@@ -27,7 +27,7 @@ class CanBuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
     }
 
     private suspend fun getReadyForQaIssueCount(): Int {
-        return JiraRequester.get<ReadyForQaIssuesResponse>(
+        return JiraRequester.get<ReadyForQaIssuesResponseBody>(
             httpClient,
             Config.getJiraReadyForQaIssuesUrl(appVersion)
         ).total

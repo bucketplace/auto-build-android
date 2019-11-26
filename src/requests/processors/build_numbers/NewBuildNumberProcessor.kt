@@ -5,14 +5,13 @@ import io.ktor.http.ContentType
 import io.ktor.response.respondText
 import requests.processors.RequestProcessor
 
-class GetNewBuildNumberProcessor(call: ApplicationCall) : RequestProcessor(call) {
+class NewBuildNumberProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
     private val appVersion = getAppVersion()
     private val lastBuildInfoDb = LastBuildInfoDb(appVersion)
 
     private fun getAppVersion(): String {
-        @Suppress("SpellCheckingInspection")
-        return call.request.queryParameters["app_version"] ?: throw Exception("app_version이 필요해요!")
+        return call.request.queryParameters["app_version"] ?: throw Exception("app_version not exists!")
     }
 
     override suspend fun process() {

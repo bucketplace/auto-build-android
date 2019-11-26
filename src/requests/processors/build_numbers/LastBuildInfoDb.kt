@@ -1,7 +1,6 @@
 package requests.processors.build_numbers
 
 import db.collections.last_build_infos.LastBuildInfo
-import io.jsondb.JsonDBTemplate
 import utils.JsonDbCreator
 
 class LastBuildInfoDb(private val appVersion: String) {

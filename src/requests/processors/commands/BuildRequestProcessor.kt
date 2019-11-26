@@ -14,20 +14,20 @@ import requests.processors.RequestProcessor
 import utils.HttpClientCreator
 import utils.SlackRequester
 
-class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
+class BuildRequestProcessor(call: ApplicationCall) : RequestProcessor(call) {
 
-    private data class RequestBuildResponse(val status: String, val buildNumber: Int)
+    private data class RequestBuildResponseBody(val status: String, val buildNumber: Int)
 
     private val parameters by lazy { getParams() }
     private val branch = getBranch()
     private val responseUrl = getSlackResponseUrl()
     private val httpClient = HttpClientCreator.create()
-    private val jsonCreator = JsonCreator()
+    private val slackRequestBodyCreator = SlackRequestBodyCreator()
 
     private fun getParams(): Parameters = runBlocking { call.receive<Parameters>() }
 
     private fun getBranch(): String {
-        return parameters["text"] ?: Config.DEFAULT_BRANCH
+        return parameters["text"].takeUnless { it.isNullOrEmpty() } ?: Config.DEFAULT_BRANCH
     }
 
     private fun getSlackResponseUrl(): String {
@@ -48,7 +48,7 @@ class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
     }
 
     @Suppress("SpellCheckingInspection")
-    private suspend fun requestBuildToBitrise(): RequestBuildResponse {
+    private suspend fun requestBuildToBitrise(): RequestBuildResponseBody {
         return httpClient.use { client ->
             client.post(Config.BITRISE_BUILD_START_URL) {
                 body = TextContent(
@@ -59,11 +59,11 @@ class BuildProcessor(call: ApplicationCall) : RequestProcessor(call) {
         }
     }
 
-    private fun createSuccessOrFailJson(response: RequestBuildResponse): String {
-        return if (response.status == "ok") {
-            jsonCreator.createSuccessJson(branch)
+    private fun createSuccessOrFailJson(responseBody: RequestBuildResponseBody): String {
+        return if (responseBody.status == "ok") {
+            slackRequestBodyCreator.createSuccessJson(branch)
         } else {
-            jsonCreator.createFailJson()
+            slackRequestBodyCreator.createFailJson()
         }
     }
 

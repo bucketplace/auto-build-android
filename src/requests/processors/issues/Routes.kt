@@ -5,5 +5,5 @@ import io.ktor.routing.Route
 import io.ktor.routing.put
 
 fun Route.issues() {
-    put("/issues/status") { ChangeIssuesStatusProcessor(call).process() }
+    put("/issues/status") { IssuesStatusChangingProcessor(call).process() }
 }
