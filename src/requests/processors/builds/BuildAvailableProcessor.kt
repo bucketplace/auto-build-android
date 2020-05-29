@@ -29,7 +29,7 @@ class BuildAvailableProcessor(call: ApplicationCall) : RequestProcessor(call) {
     private suspend fun getReadyForQaIssueCount(): Int {
         return JiraRequester.get<ReadyForQaIssuesResponseBody>(
             httpClient,
-            Config.getJiraReadyForQaIssuesUrl(appVersion)
+            Config.getJiraReadyForPdgQaIssuesUrl(appVersion)
         ).total
     }
 

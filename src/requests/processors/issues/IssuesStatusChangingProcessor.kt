@@ -35,7 +35,7 @@ class IssuesStatusChangingProcessor(call: ApplicationCall) : RequestProcessor(ca
     private suspend fun getReadyForQaIssues(): List<Issue> {
         return JiraRequester.get<ReadyForQaIssuesResponseBody>(
             httpClient,
-            Config.getJiraReadyForQaIssuesUrl(appVersion)
+            Config.getJiraReadyForPdgQaIssuesUrl(appVersion)
         ).issues
     }
 
@@ -43,8 +43,8 @@ class IssuesStatusChangingProcessor(call: ApplicationCall) : RequestProcessor(ca
         issues.forEach { issue ->
             JiraRequester.post<HttpResponse>(
                 httpClient,
-                Config.getJiraIssueQaInProgressTransitionUrl(issue.key),
-                Config.JIRA_ISSUE_QA_IN_PROGRESS_TRANSITION_POST_BODY
+                Config.getJiraIssuePdgQaInProgressTransitionUrl(issue.key),
+                Config.JIRA_ISSUE_PDG_QA_IN_PROGRESS_TRANSITION_POST_BODY
             )
         }
     }
